@@ -7,26 +7,31 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct ContentView: View {
     
+    @State private var selection = 0
+    @EnvironmentObject var systemState :SystemState
+    
+    var bleObj = BleHandler()
+
     init(){
         UITabBar.appearance().barTintColor = UIColor(named: "tab")
     }
-    
-    @State private var selection = 0
-    
-    
-    var x = UIScreen.main.bounds.height
-
+            
     var body: some View {
                 
-        
-//        VStack{
-            GeometryReader {
+//        let bleObj = BleHandler(environmentObj: systemState)
+        bleObj.setSystemState(systemState: systemState)
+
+        //        VStack{
+        return GeometryReader {
                 geometry in VStack(spacing: 1) {
                     Color.black
                         .frame( width: geometry.size.width, height: geometry.safeAreaInsets.top, alignment: .top )
+                BleStateView()
+                        .frame(height: geometry.size.height * 0.125)
                     
                     TabView(selection: self.$selection){
                                     
@@ -48,14 +53,14 @@ struct ContentView: View {
                             }
                             .tag(1)
 
-                        SearchView()
-                            .tabItem {
-                                VStack {
-                                    Image(systemName: "antenna.radiowaves.left.and.right")
-                                    Text("Search")
-                                }
-                            }
-                            .tag(2)
+//                        SearchView()
+//                            .tabItem {
+//                                VStack {
+//                                    Image(systemName: "antenna.radiowaves.left.and.right")
+//                                    Text("Search")
+//                                }
+//                            }
+//                            .tag(2)
                     }
 
                     
@@ -68,6 +73,8 @@ struct ContentView: View {
             
 //        }
     }
+    
+    
 }
 
 struct ContentView_Previews: PreviewProvider {
@@ -75,3 +82,5 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+
+

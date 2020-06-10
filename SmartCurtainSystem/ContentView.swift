@@ -14,7 +14,7 @@ struct ContentView: View {
     @State private var selection = 0
     @EnvironmentObject var systemState :SystemState
     
-    var bleObj = BleHandler()
+    var bleController = BleController()
 
     init(){
         UITabBar.appearance().barTintColor = UIColor(named: "tab")
@@ -23,7 +23,7 @@ struct ContentView: View {
     var body: some View {
                 
 //        let bleObj = BleHandler(environmentObj: systemState)
-        bleObj.setSystemState(systemState: systemState)
+        bleController.setSystemState(systemState: systemState)
 
         //        VStack{
         return GeometryReader {

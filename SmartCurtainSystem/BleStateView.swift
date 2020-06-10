@@ -55,7 +55,7 @@ struct BleStateView: View {
                             .frame(height: geomerty.size.height * 0.2)
 
                             Button(action: {
-                                print("button pressed")
+                                self.systemState.userReq = .SEARCH
                                 
                             }) {
                                 Image("searchBtn")

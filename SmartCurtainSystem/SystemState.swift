@@ -14,6 +14,15 @@ enum PairingState: String{
     case SEARCHING   = "デバイス検索中"
 }
 
+enum UserReq {
+    case NONE
+    case SEARCH
+    case OPEN
+    case CLOSE
+    case STOP
+}
+
 class SystemState: ObservableObject{
     @Published var pairingState :PairingState = .SEARCHING
+    @Published var userReq :UserReq = .NONE
 }

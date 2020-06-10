@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		473561BF248B5C3200640A11 /* BleController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473561BE248B5C2F00640A11 /* BleController.swift */; };
+		473561BF248B5C3200640A11 /* BleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473561BE248B5C2F00640A11 /* BleHandler.swift */; };
 		473561C1248C7A8000640A11 /* BleStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473561C0248C7A8000640A11 /* BleStateView.swift */; };
-		473561C3248CB00700640A11 /* BleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473561C2248CB00600640A11 /* BleHandler.swift */; };
+		473561C3248CB00700640A11 /* BleController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473561C2248CB00600640A11 /* BleController.swift */; };
 		473561C5248CCFE000640A11 /* SystemState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473561C4248CCFDF00640A11 /* SystemState.swift */; };
 		477F6455247A358D00F14BE7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477F6454247A358D00F14BE7 /* AppDelegate.swift */; };
 		477F6457247A358D00F14BE7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477F6456247A358D00F14BE7 /* SceneDelegate.swift */; };
@@ -23,9 +23,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		473561BE248B5C2F00640A11 /* BleController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleController.swift; sourceTree = "<group>"; };
+		473561BE248B5C2F00640A11 /* BleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleHandler.swift; sourceTree = "<group>"; };
 		473561C0248C7A8000640A11 /* BleStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleStateView.swift; sourceTree = "<group>"; };
-		473561C2248CB00600640A11 /* BleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleHandler.swift; sourceTree = "<group>"; };
+		473561C2248CB00600640A11 /* BleController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleController.swift; sourceTree = "<group>"; };
 		473561C4248CCFDF00640A11 /* SystemState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemState.swift; sourceTree = "<group>"; };
 		477F6451247A358D00F14BE7 /* SmartCurtainSystem.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SmartCurtainSystem.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		477F6454247A358D00F14BE7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -78,8 +78,8 @@
 				477F6468247A486100F14BE7 /* ControlView.swift */,
 				477F646A247A491100F14BE7 /* AlarmView.swift */,
 				473561C0248C7A8000640A11 /* BleStateView.swift */,
-				473561C2248CB00600640A11 /* BleHandler.swift */,
-				473561BE248B5C2F00640A11 /* BleController.swift */,
+				473561C2248CB00600640A11 /* BleController.swift */,
+				473561BE248B5C2F00640A11 /* BleHandler.swift */,
 				473561C4248CCFDF00640A11 /* SystemState.swift */,
 				477F645A247A359400F14BE7 /* Assets.xcassets */,
 				477F645F247A359400F14BE7 /* LaunchScreen.storyboard */,
@@ -180,10 +180,10 @@
 				477F6455247A358D00F14BE7 /* AppDelegate.swift in Sources */,
 				477F646B247A491100F14BE7 /* AlarmView.swift in Sources */,
 				477F6457247A358D00F14BE7 /* SceneDelegate.swift in Sources */,
-				473561C3248CB00700640A11 /* BleHandler.swift in Sources */,
+				473561C3248CB00700640A11 /* BleController.swift in Sources */,
 				473561C1248C7A8000640A11 /* BleStateView.swift in Sources */,
 				473561C5248CCFE000640A11 /* SystemState.swift in Sources */,
-				473561BF248B5C3200640A11 /* BleController.swift in Sources */,
+				473561BF248B5C3200640A11 /* BleHandler.swift in Sources */,
 				477F6459247A358D00F14BE7 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

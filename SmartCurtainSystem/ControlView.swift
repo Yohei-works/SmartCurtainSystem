@@ -9,10 +9,12 @@
 import SwiftUI
 
 struct ControlView: View {
+    
+    @EnvironmentObject var systemState :SystemState
+    
     var body: some View {
         Color("background")
-//        Image("wood_wall")
-//            .resizable()
+
             .overlay(
                 GeometryReader{ geometry in
                     
@@ -37,7 +39,7 @@ struct ControlView: View {
                         
                         HStack{
                             Button(action: {
-                                print("button pressed")
+                                self.systemState.userReq = .OPEN
                                 
                             }) {
                                 Image("OPEN_inactive")
@@ -50,7 +52,7 @@ struct ControlView: View {
                             Spacer().frame(width: geometry.size.width * 0.085)
                             
                             Button(action: {
-                                print("button pressed")
+                                self.systemState.userReq = .CLOSE
                                 
                             }) {
                                 Image("CLOSE_inactive")
@@ -63,7 +65,7 @@ struct ControlView: View {
                         Spacer().frame(height: geometry.size.height * 0.075)
 
                         Button(action: {
-                            print("button pressed")
+                            self.systemState.userReq = .STOP
                             
                         }) {
                             Image("STOP_inactive")

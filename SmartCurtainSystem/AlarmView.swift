@@ -9,8 +9,23 @@
 import SwiftUI
 
 struct AlarmView: View {
+    
+    @State var isPresented: Bool = false
+    @State private var selectionDate = Date()
+
     var body: some View {
         Color("background")
+            .overlay(
+                VStack {
+                    Button("present") {
+                        self.isPresented.toggle()
+                    }
+                }
+                .sheet(isPresented: $isPresented) {
+                    DatePicker("時刻", selection: self.$selectionDate, displayedComponents: .hourAndMinute)
+
+                }
+        )
     }
 }
 

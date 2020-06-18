@@ -22,7 +22,14 @@ enum UserReq {
     case STOP
 }
 
+enum CurtaionState {
+    case STOPPING
+    case OPENING_OPERATION
+    case CLOSING_OPERATION
+}
+
 class SystemState: ObservableObject{
     @Published var pairingState :PairingState = .SEARCHING
     @Published var userReq :UserReq = .NONE
+    @Published var curtainState :CurtaionState = .STOPPING
 }

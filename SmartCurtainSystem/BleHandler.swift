@@ -9,16 +9,12 @@
 import UIKit
 import CoreBluetooth
 
-enum CharacteristicsType: String{
-    case CONTROL = "FFF1"
-    case VERIFY  = "FFF2"
-    case NONE    = "0000"
-}
-
 enum BleEvent{
     case NONE
     case CONNECTION_FAILD
     case DEVICE_DETECTION
+    case SUCCESSFUL_WRITE
+    case SUCCESSFUL_READ
 }
 
 protocol BleHandlingDelegate {
@@ -27,10 +23,18 @@ protocol BleHandlingDelegate {
 
 class BleHandler :NSObject,CBCentralManagerDelegate, CBPeripheralDelegate{
 
+    enum CharacteristicsType: String{
+        case CONTROL = "FFF1"
+        case VERIFY  = "FFF2"
+        case NONE    = "0000"
+    }
+
     var delegate: BleHandlingDelegate?
     var centralManager: CBCentralManager?
     var myPeripheral: CBPeripheral?
     var processingUUID: CharacteristicsType = CharacteristicsType.NONE
+    var reqData: Data?
+    var getData: Data?
     let deviceName: String = "Smart_Curtain"
     let serviceUUID: [CBUUID] = [CBUUID(string: "FFF0")]
 //    let controlCharacteristicsUUID: [CBUUID] = [CBUUID(string: "FFF1")]
@@ -113,33 +117,58 @@ class BleHandler :NSObject,CBCentralManagerDelegate, CBPeripheralDelegate{
         }
     }
     
-    func discoverCharacterristics(type: CharacteristicsType){
+    //BLE_WRITEサービス
+    func writeService(data: Data){
         let service: CBService = myPeripheral!.services![0]
-        let uuid :[CBUUID] = [CBUUID(string: type.rawValue)]
-        processingUUID = type
+        let uuid :[CBUUID] = [CBUUID(string: CharacteristicsType.CONTROL.rawValue)]
+        reqData = data
+        processingUUID = CharacteristicsType.CONTROL
         myPeripheral!.discoverCharacteristics(uuid, for: service)
     }
     
+    //BLE_READサービス
+    func readService(){
+        let service: CBService = myPeripheral!.services![0]
+        let uuid :[CBUUID] = [CBUUID(string: CharacteristicsType.VERIFY.rawValue)]
+        processingUUID = CharacteristicsType.VERIFY
+        myPeripheral!.discoverCharacteristics(uuid, for: service)
+    }
+        
     // Characteristics を発見したら呼ばれる
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        print("Find Characteristics")
      
 //        let command = "IOS_TEST" + "\n"
 //        let data = command.data(using: String.Encoding.utf8, allowLossyConversion:true) ?? Data(bytes: [0])
         //ペリフェラルの保持しているキャラクタリスティクスから特定のものを探す
         for i in service.characteristics!{
-            if(i.uuid.uuidString == processingUUID.rawValue){
-                //Notification を受け取るというハンドラ
-//                peripheral.setNotifyValue(true, for: i)
-                //書き込み
-//                peripheral.writeValue(data , for: i, type: .withResponse)
+            if(  i.uuid.uuidString == processingUUID.rawValue){
+                if( processingUUID == .CONTROL ){
+                    //Notification を受け取るというハンドラ
+                    peripheral.setNotifyValue(true, for: i)
+                    //書き込み
+                    peripheral.writeValue(reqData! , for: i, type: .withResponse)
+                }
+                else if(processingUUID == .VERIFY){
+                    peripheral.readValue(for: i)
+                }
+                else{}
             }
         }
     }
     // Notificationを受け取ったら呼ばれる
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        // valueの中にData型で値が入っている
-        print(characteristic.value)
+        
+        //送信したデータと一致してたらイベント通知
+        if(reqData == characteristic.value){
+            self.delegate?.bleEventNotify(event: .SUCCESSFUL_WRITE)
+        }
+    }
+    
+    // データ読み出しが完了すると呼ばれる
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        
+        getData = characteristic.value
+        self.delegate?.bleEventNotify(event: .SUCCESSFUL_READ)
     }
     
 }

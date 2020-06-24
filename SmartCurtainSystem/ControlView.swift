@@ -27,10 +27,19 @@ struct ControlView: View {
                                 .resizable()
                                 .scaledToFit()
 
-                            startCurtainAnimation(width: geometry.size.width * 0.9, height:  geometry.size.height * 0.4, curtainImages: openImages)
-//                            Image("curtain05")
-//                                .resizable()
-//                                .scaledToFit()
+                            if( self.systemState.deviceState == .autoOpen
+                                || self.systemState.deviceState == .manualOpen){
+                                startCurtainAnimation(width: geometry.size.width * 0.9, height:  geometry.size.height * 0.4, curtainImages: openImages)
+                            }
+                            else if( self.systemState.deviceState == .autoClose
+                                || self.systemState.deviceState == .manualClose){
+                                startCurtainAnimation(width: geometry.size.width * 0.9, height:  geometry.size.height * 0.4, curtainImages: closeImages)
+                            }
+                            else{
+                                Image( self.getCurtaionImageName(curtainPos: self.systemState.curtainPos) )
+                                    .resizable()
+                                    .scaledToFit()
+                            }
 
                         }
                             .frame(width: geometry.size.width * 0.9, height: geometry.size.height * 0.4)
@@ -39,48 +48,82 @@ struct ControlView: View {
 
                         
                         HStack{
-                            Button(action: {
-                                self.systemState.userReq = .OPEN
-                                
-                            }) {
-                                Image("OPEN_inactive")
-                                    .renderingMode(.original)
-                                    .resizable()
-                                    .scaledToFit()
-
+                            if(self.systemState.isUserInteractionEnabled){
+                                Button(action: {
+                                    self.systemState.userReq = .autoOpen
+                                    
+                                }) {
+                                    Image("OPEN_inactive")
+                                        .renderingMode(.original)
+                                        .resizable()
+                                        .scaledToFit()
+                                }
+                            }
+                            else{
+                                Image("OPEN_active")
+                                .renderingMode(.original)
+                                .resizable()
+                                .scaledToFit()
                             }
                             
                             Spacer().frame(width: geometry.size.width * 0.085)
                             
-                            Button(action: {
-                                self.systemState.userReq = .CLOSE
+                            if(self.systemState.isUserInteractionEnabled){
+                                Button(action: {
+                                    self.systemState.userReq = .autoClose
+                                    
+                                }) {
+                                    Image("CLOSE_inactive")
+                                        .renderingMode(.original)
+                                        .resizable()
+                                        .scaledToFit()
+                                }
+                            }
+                            else{
+                                Image("CLOSE_active")
+                                .renderingMode(.original)
+                                .resizable()
+                                .scaledToFit()
+                            }
+
+                        }.frame(height: geometry.size.height * 0.1)
+
+                        Spacer().frame(height: geometry.size.height * 0.075)
+                        
+                        HStack{
+                            if(self.systemState.isUserInteractionEnabled){
                                 
-                            }) {
-                                Image("CLOSE_inactive")
+                                Button(action: {
+                                    self.systemState.userReq = .stop
+                                    
+                                }) {
+                                    Image("STOP_inactive")
+                                        .renderingMode(.original)
+                                        .resizable()
+                                        .scaledToFit()
+                                }
+                            }
+                            else{
+                                Image("STOP_active")
                                     .renderingMode(.original)
                                     .resizable()
                                     .scaledToFit()
                             }
                         }.frame(height: geometry.size.height * 0.1)
-
-                        Spacer().frame(height: geometry.size.height * 0.075)
-
-                        Button(action: {
-                            self.systemState.userReq = .STOP
-                            
-                        }) {
-                            Image("STOP_inactive")
-                                .renderingMode(.original)
-                                .resizable()
-                                .scaledToFit()
-                        }
-                            .frame(height: geometry.size.height * 0.1)
                        
                         Spacer().frame(height: geometry.size.height * 0.145)
 
                     }
                 }
             )
+    }
+    private func getCurtaionImageName(curtainPos: Int)->String{
+        let imageCnt = openImages.count
+        let input = curtainPos > 100 ? 50 : curtainPos
+        let temp: Int = input / (100 / imageCnt)
+        let index = temp >= imageCnt ? imageCnt-1 : temp
+        
+        return curtainImgName[index]
     }
 }
 
@@ -90,9 +133,23 @@ struct ControlView_Previews: PreviewProvider {
     }
 }
 
-let openImages : [UIImage]! = [UIImage(named: "role_curtain09")!, UIImage(named: "role_curtain08")!, UIImage(named: "role_curtain07")!, UIImage(named: "role_curtain06")!, UIImage(named: "role_curtain05")!, UIImage(named: "role_curtain04")!, UIImage(named: "role_curtain03")!, UIImage(named: "role_curtain02")!, UIImage(named: "role_curtain01")!]
+let curtainImgName = [
+    "role_curtain09",
+    "role_curtain08",
+    "role_curtain07",
+    "role_curtain06",
+    "role_curtain05",
+    "role_curtain04",
+    "role_curtain03",
+    "role_curtain02",
+    "role_curtain01"
+]
 
-let closeImages : [UIImage]! = [UIImage(named: "role_curtain01")!, UIImage(named: "role_curtain02")!, UIImage(named: "role_curtain03")!, UIImage(named: "role_curtain04")!, UIImage(named: "role_curtain05")!, UIImage(named: "role_curtain06")!, UIImage(named: "role_curtain07")!, UIImage(named: "role_curtain08")!, UIImage(named: "role_curtain09")!]
+let openImages : [UIImage]! = [UIImage(named: curtainImgName[0])!, UIImage(named: curtainImgName[1])!, UIImage(named: curtainImgName[2])!, UIImage(named: curtainImgName[3])!, UIImage(named: curtainImgName[4])!, UIImage(named: curtainImgName[5])!, UIImage(named: curtainImgName[6])!, UIImage(named: curtainImgName[7])!, UIImage(named: curtainImgName[8])!]
+
+//let closeImages = openImages.reversed()
+
+let closeImages : [UIImage]! = [UIImage(named: curtainImgName[8])!, UIImage(named: curtainImgName[7])!, UIImage(named: curtainImgName[6])!, UIImage(named: curtainImgName[5])!, UIImage(named: curtainImgName[4])!, UIImage(named: curtainImgName[3])!, UIImage(named: curtainImgName[2])!, UIImage(named: curtainImgName[1])!, UIImage(named: curtainImgName[0])!]
 
 
 

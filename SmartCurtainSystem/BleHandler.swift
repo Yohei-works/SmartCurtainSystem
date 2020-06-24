@@ -10,11 +10,11 @@ import UIKit
 import CoreBluetooth
 
 enum BleEvent{
-    case NONE
-    case CONNECTION_FAILD
-    case DEVICE_DETECTION
-    case SUCCESSFUL_WRITE
-    case SUCCESSFUL_READ
+    case noneEvent
+    case connectionFaildEvent
+    case deviceDetectionEvent
+    case notifiDeviceInfo1
+    case notifiDeviceInfo2
 }
 
 protocol BleHandlingDelegate {
@@ -24,17 +24,19 @@ protocol BleHandlingDelegate {
 class BleHandler :NSObject,CBCentralManagerDelegate, CBPeripheralDelegate{
 
     enum CharacteristicsType: String{
-        case CONTROL = "FFF1"
-        case VERIFY  = "FFF2"
-        case NONE    = "0000"
+        case control = "FFF1"
+        case deviceInfo1 = "FFF2"
+        case deviceInfo2 = "FFF3"
+        case none    = "0000"
     }
 
     var delegate: BleHandlingDelegate?
     var centralManager: CBCentralManager?
     var myPeripheral: CBPeripheral?
-    var processingUUID: CharacteristicsType = CharacteristicsType.NONE
+    var processingUUID: CharacteristicsType = CharacteristicsType.none
     var reqData: Data?
-    var getData: Data?
+    var deviceInfoData1: Data?
+    var deviceInfoData2: Data?
     let deviceName: String = "Smart_Curtain"
     let serviceUUID: [CBUUID] = [CBUUID(string: "FFF0")]
 //    let controlCharacteristicsUUID: [CBUUID] = [CBUUID(string: "FFF1")]
@@ -57,7 +59,7 @@ class BleHandler :NSObject,CBCentralManagerDelegate, CBPeripheralDelegate{
              .unauthorized,
              .poweredOff:
             //イベント通知
-            self.delegate?.bleEventNotify(event: .CONNECTION_FAILD)
+            self.delegate?.bleEventNotify(event: .connectionFaildEvent)
             break
         case .poweredOn:
             // デバイスをスキャン
@@ -102,35 +104,35 @@ class BleHandler :NSObject,CBCentralManagerDelegate, CBPeripheralDelegate{
     // デバイスへの接続が失敗すると呼ばれる
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         //イベント通知
-        self.delegate?.bleEventNotify(event: .CONNECTION_FAILD)
+        self.delegate?.bleEventNotify(event: .connectionFaildEvent)
     }
     
     // サービスの検索が成功したら呼ばれる
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if(error == nil){
             //イベント通知
-            self.delegate?.bleEventNotify(event: .DEVICE_DETECTION)
+            self.delegate?.bleEventNotify(event: .deviceDetectionEvent)
         }
         else{
             //イベント通知
-            self.delegate?.bleEventNotify(event: .CONNECTION_FAILD)
+            self.delegate?.bleEventNotify(event: .connectionFaildEvent)
         }
     }
     
     //BLE_WRITEサービス
     func writeService(data: Data){
         let service: CBService = myPeripheral!.services![0]
-        let uuid :[CBUUID] = [CBUUID(string: CharacteristicsType.CONTROL.rawValue)]
+        let uuid :[CBUUID] = [CBUUID(string: CharacteristicsType.control.rawValue)]
+        processingUUID = .control
         reqData = data
-        processingUUID = CharacteristicsType.CONTROL
         myPeripheral!.discoverCharacteristics(uuid, for: service)
     }
     
     //BLE_READサービス
     func readService(){
         let service: CBService = myPeripheral!.services![0]
-        let uuid :[CBUUID] = [CBUUID(string: CharacteristicsType.VERIFY.rawValue)]
-        processingUUID = CharacteristicsType.VERIFY
+        let uuid :[CBUUID] = [CBUUID(string: CharacteristicsType.deviceInfo1.rawValue)]
+        processingUUID = .deviceInfo1
         myPeripheral!.discoverCharacteristics(uuid, for: service)
     }
         
@@ -141,35 +143,47 @@ class BleHandler :NSObject,CBCentralManagerDelegate, CBPeripheralDelegate{
 //        let data = command.data(using: String.Encoding.utf8, allowLossyConversion:true) ?? Data(bytes: [0])
         //ペリフェラルの保持しているキャラクタリスティクスから特定のものを探す
         for i in service.characteristics!{
-            if(  i.uuid.uuidString == processingUUID.rawValue){
-                if( processingUUID == .CONTROL ){
+            if(  i.uuid.uuidString == CharacteristicsType.control.rawValue){
+                if( processingUUID == .control ){
                     //Notification を受け取るというハンドラ
-                    peripheral.setNotifyValue(true, for: i)
+//                    peripheral.setNotifyValue(true, for: i)
                     //書き込み
                     peripheral.writeValue(reqData! , for: i, type: .withResponse)
                 }
-                else if(processingUUID == .VERIFY){
+                else if(processingUUID == .deviceInfo1){
                     peripheral.readValue(for: i)
                 }
                 else{}
+                
+                processingUUID = .none
             }
         }
     }
     // Notificationを受け取ったら呼ばれる
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         
-        //送信したデータと一致してたらイベント通知
-        if(reqData == characteristic.value){
-            self.delegate?.bleEventNotify(event: .SUCCESSFUL_WRITE)
+        if(characteristic.uuid.uuidString == CharacteristicsType.deviceInfo1.rawValue){
+            deviceInfoData1 = characteristic.value
+            self.delegate?.bleEventNotify(event: .notifiDeviceInfo1)
         }
+        else if(characteristic.uuid.uuidString == CharacteristicsType.deviceInfo2.rawValue){
+            deviceInfoData2 = characteristic.value
+            self.delegate?.bleEventNotify(event: .notifiDeviceInfo2)
+        }
+        else{}
+        //送信したデータと一致してたらイベント通知
+//        if(reqData == characteristic.value){
+//            self.delegate?.bleEventNotify(event: .SUCCESSFUL_WRITE)
+//        }
     }
     
     // データ読み出しが完了すると呼ばれる
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        
-        getData = characteristic.value
-        self.delegate?.bleEventNotify(event: .SUCCESSFUL_READ)
+
+        if(characteristic.uuid.uuidString == CharacteristicsType.deviceInfo1.rawValue){
+            deviceInfoData1 = characteristic.value
+            self.delegate?.bleEventNotify(event: .notifiDeviceInfo1)
+        }
     }
     
 }
-

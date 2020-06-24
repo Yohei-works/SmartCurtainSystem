@@ -21,14 +21,14 @@ struct BleStateView: View {
                 GeometryReader{ geometry in
                     HStack{
 
-                        if (self.systemState.pairingState == .SEARCHING){
+                        if (self.systemState.pairingState == .searching){
 //                            Image(uiImage: waveAnimation!)
                             startWaveAnimation(height: geometry.size.height * 0.7)
                                 .scaledToFit()
                                 .frame( height: geometry.size.height * 0.7)
                             
                         }
-                        else if(self.systemState.pairingState == .CONNECTED){
+                        else if(self.systemState.pairingState == .connected){
                             Image("wave05")
                                 .resizable()
                                 .scaledToFit()
@@ -55,7 +55,7 @@ struct BleStateView: View {
                             .frame(height: geometry.size.height * 0.2)
 
                             Button(action: {
-                                self.systemState.userReq = .SEARCH
+                                self.systemState.userReq = .search
                                 
                             }) {
                                 Image("searchBtn")

@@ -57,6 +57,27 @@ struct AlarmData {
     }
     var alarmSw : Bool = false
     
+    func getTimeLabel()->String{
+        
+        var label = ""
+        
+        if self.hour < 10{
+            label = "0"+String(self.hour)+":"
+        }
+        else{
+            label = String(self.hour)+":"
+        }
+        
+        if self.minutes < 10{
+            label += "0"+String(self.minutes)
+        }
+        else{
+            label += String(self.minutes)
+        }
+        
+        return label
+    }
+    
 //    init(hour:UInt8, minutes:UInt8){
 //        self.hour = hour
 //        self.minutes = minutes

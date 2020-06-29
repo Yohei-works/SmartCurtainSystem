@@ -37,6 +37,8 @@ class BleHandler :NSObject,CBCentralManagerDelegate, CBPeripheralDelegate{
     var reqData: Data?
     var deviceInfoData1: Data?
     var deviceInfoData2: Data?
+    var deviceInfoNotifiFlg1: Bool = false
+    var deviceInfoNotifiFlg2: Bool = false
     let deviceName: String = "Smart_Curtain"
     let serviceUUID: [CBUUID] = [CBUUID(string: "FFF0")]
 //    let controlCharacteristicsUUID: [CBUUID] = [CBUUID(string: "FFF1")]
@@ -112,11 +114,22 @@ class BleHandler :NSObject,CBCentralManagerDelegate, CBPeripheralDelegate{
         if(error == nil){
             //イベント通知
             self.delegate?.bleEventNotify(event: .deviceDetectionEvent)
+            setNotfiDeviceInfo(type: CharacteristicsType.deviceInfo1)
+            setNotfiDeviceInfo(type: CharacteristicsType.deviceInfo2)
         }
         else{
             //イベント通知
             self.delegate?.bleEventNotify(event: .connectionFaildEvent)
+            
         }
+    }
+    
+    
+    //BLE_SET_NOTIFICATION
+    private func setNotfiDeviceInfo(type: CharacteristicsType){
+        let service: CBService = myPeripheral!.services![0]
+        let uuid :[CBUUID] = [CBUUID(string: type.rawValue)]
+        myPeripheral!.discoverCharacteristics(uuid, for: service)
     }
     
     //BLE_WRITEサービス
@@ -143,47 +156,86 @@ class BleHandler :NSObject,CBCentralManagerDelegate, CBPeripheralDelegate{
 //        let data = command.data(using: String.Encoding.utf8, allowLossyConversion:true) ?? Data(bytes: [0])
         //ペリフェラルの保持しているキャラクタリスティクスから特定のものを探す
         for i in service.characteristics!{
-            if(  i.uuid.uuidString == CharacteristicsType.control.rawValue){
+            
+            switch(i.uuid.uuidString){
+            case CharacteristicsType.control.rawValue:
+                
                 if( processingUUID == .control ){
                     //Notification を受け取るというハンドラ
-//                    peripheral.setNotifyValue(true, for: i)
+                    peripheral.setNotifyValue(true, for: i)
                     //書き込み
-                    peripheral.writeValue(reqData! , for: i, type: .withResponse)
+                    peripheral.writeValue(reqData! , for: i, type: .withoutResponse)
+                    processingUUID = .none
                 }
-                else if(processingUUID == .deviceInfo1){
-                    peripheral.readValue(for: i)
-                }
-                else{}
                 
-                processingUUID = .none
+            case CharacteristicsType.deviceInfo1.rawValue:
+                
+                if( !deviceInfoNotifiFlg1 ){
+                    //Notification を受け取るというハンドラ
+                    peripheral.setNotifyValue(true, for: i)
+                    deviceInfoNotifiFlg1 = true
+                }
+                
+                if( processingUUID == .deviceInfo1 ){
+                    peripheral.readValue(for: i)
+                    processingUUID = .none
+                }
+
+            case CharacteristicsType.deviceInfo2.rawValue:
+                
+                if( !deviceInfoNotifiFlg2 ){
+                    //Notification を受け取るというハンドラ
+                    peripheral.setNotifyValue(true, for: i)
+                    deviceInfoNotifiFlg2 = true
+                }
+                
+            default:
+                break
             }
+
+//            if(  i.uuid.uuidString == CharacteristicsType.control.rawValue){
+//                if( processingUUID == .control ){
+//                    //Notification を受け取るというハンドラ
+//                    peripheral.setNotifyValue(true, for: i)
+//                    //書き込み
+//                    peripheral.writeValue(reqData! , for: i, type: .withoutResponse)
+//                    processingUUID = .none
+//                }
+//                else if(processingUUID == .deviceInfo1){
+//                    peripheral.readValue(for: i)
+//                    processingUUID = .none
+//                }
+//                else{}
+//            }
         }
     }
     // Notificationを受け取ったら呼ばれる
-    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?){
         
         if(characteristic.uuid.uuidString == CharacteristicsType.deviceInfo1.rawValue){
-            deviceInfoData1 = characteristic.value
-            self.delegate?.bleEventNotify(event: .notifiDeviceInfo1)
-        }
-        else if(characteristic.uuid.uuidString == CharacteristicsType.deviceInfo2.rawValue){
-            deviceInfoData2 = characteristic.value
-            self.delegate?.bleEventNotify(event: .notifiDeviceInfo2)
-        }
-        else{}
-        //送信したデータと一致してたらイベント通知
-//        if(reqData == characteristic.value){
-//            self.delegate?.bleEventNotify(event: .SUCCESSFUL_WRITE)
-//        }
+             deviceInfoData1 = characteristic.value
+             self.delegate?.bleEventNotify(event: .notifiDeviceInfo1)
+         }
+         else if(characteristic.uuid.uuidString == CharacteristicsType.deviceInfo2.rawValue){
+             deviceInfoData2 = characteristic.value
+             self.delegate?.bleEventNotify(event: .notifiDeviceInfo2)
+         }
+         else{}
     }
     
     // データ読み出しが完了すると呼ばれる
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
 
+        
         if(characteristic.uuid.uuidString == CharacteristicsType.deviceInfo1.rawValue){
-            deviceInfoData1 = characteristic.value
-            self.delegate?.bleEventNotify(event: .notifiDeviceInfo1)
-        }
+             deviceInfoData1 = characteristic.value
+             self.delegate?.bleEventNotify(event: .notifiDeviceInfo1)
+         }
+         else if(characteristic.uuid.uuidString == CharacteristicsType.deviceInfo2.rawValue){
+             deviceInfoData2 = characteristic.value
+             self.delegate?.bleEventNotify(event: .notifiDeviceInfo2)
+         }
+         else{}
     }
     
 }

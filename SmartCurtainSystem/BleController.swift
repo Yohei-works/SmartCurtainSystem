@@ -105,7 +105,8 @@ class BleController: BleHandlingDelegate {
         
         case .search:
             
-            if ( systemState!.pairingState != .searching ){
+            if ( systemState!.pairingState != .searching
+                && systemState!.pairingState != .connected  ){
                 self.systemState?.pairingState = .searching
                 pairingTimerStart()
                 
@@ -196,8 +197,9 @@ class BleController: BleHandlingDelegate {
         var deviceInfo1:DeviceState = .stop
         var pos = 50
         
-        let data1 = UInt8(inputData.subdata(in: Range(0...0)).description)
-        if let data2 = Int(inputData.subdata(in: Range(1...1)).description){
+//        let data1 = UInt8(inputData.subdata(in: Range(0...0)).description)
+        let data1 = UInt8(inputData[0...0].map { String(format: "%x", $0) }.joined())
+        if let data2 = Int(inputData[1...1].map { String(format: "%x", $0) }.joined()){
             pos = data2
         }
         else{
@@ -225,19 +227,19 @@ class BleController: BleHandlingDelegate {
         
         var openH:UInt8 = 0xFF,openM:UInt8 = 0xFF,closeH:UInt8 = 0xFF,closeM:UInt8 = 0xFF
         
-        if let data = UInt8(inputData.subdata(in: Range(0...0)).description){
+        if let data = UInt8(inputData[0...0].map { String(format: "%x", $0) }.joined()){
             openH = data
         }
         
-        if let data = UInt8(inputData.subdata(in: Range(1...1)).description){
+        if let data = UInt8(inputData[1...1].map { String(format: "%x", $0) }.joined()){
             openM = data
         }
         
-        if let data = UInt8(inputData.subdata(in: Range(2...2)).description){
+        if let data = UInt8(inputData[2...2].map { String(format: "%x", $0) }.joined()){
             closeH = data
         }
         
-        if let data = UInt8(inputData.subdata(in: Range(3...3)).description){
+        if let data = UInt8(inputData[3...3].map { String(format: "%x", $0) }.joined()){
             closeM = data
         }
                 
